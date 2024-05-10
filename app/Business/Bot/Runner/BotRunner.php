@@ -2,25 +2,15 @@
 
 namespace App\Business\Bot\Runner;
 
-use App\Business\Bot\Client\ClientFactory;
-use App\Business\Bot\Client\CodyfightClientInterface;
-use App\Business\Bot\Command\Move\MoveCommand;
+use App\Business\Bot\Bot;
 
-class BotRunner
+readonly class BotRunner
 {
-    private CodyfightClientInterface $client;
+    private Bot $bot;
 
-    public function __construct(
-        private readonly ClientFactory $clientFactory,
-        private readonly MoveCommand   $moveCommand,
-    )
+    public function run(Bot $bot): BotRunnerResults
     {
-    }
-
-    public function run(BotConfiguration $configuration): BotRunnerResults
-    {
-        $this->client = $this->clientFactory->createCodyfightClient($configuration);
-
+        $this->bot = $bot;
         $endGameState = $this->playGame();
 
         return new BotRunnerResults();
@@ -33,10 +23,10 @@ class BotRunner
         while ($this->gameIsInProgress($gameState)) {
             if ($this->isPlayerTurn($gameState)) {
                 logger('PLAYER TURN');
-                $gameState = $this->move($gameState);
+                $gameState = $this->bot->move($gameState);
             } else {
                 logger('Waiting for player turn');
-                $gameState = $this->checkGameState();
+                $gameState = $this->bot->updateState();
             }
             sleep(1);
         }
@@ -47,12 +37,12 @@ class BotRunner
 
     private function startGame(): array
     {
-        $gameState = $this->client->initGame();
+        $gameState = $this->bot->initGame();
         $gameStatus = $gameState['state']['status'];
 
         while ($gameStatus === 0) {
             logger('Waiting for game to start');
-            $gameState = $this->client->initGame();
+            $gameState = $this->bot->initGame();
 
             if (!isset($gameState['state']['status'])) {
                 // Possibly maintenance/timeout?
@@ -74,17 +64,5 @@ class BotRunner
     private function isPlayerTurn(array $gameState): bool
     {
         return $gameState['players']['bearer']['is_player_turn'];
-    }
-
-    private function move(array $gameState): array
-    {
-        $moveParameters = $this->moveCommand->get($gameState);
-
-        return $this->client->move($moveParameters);
-   }
-
-    private function checkGameState(): array
-    {
-        return $this->client->checkGameState();
     }
 }

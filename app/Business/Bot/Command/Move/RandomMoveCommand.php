@@ -2,7 +2,7 @@
 
 namespace App\Business\Bot\Command\Move;
 
-class MoveCommand
+class RandomMoveCommand implements MoveCommandInterface
 {
     public function get(array $gameState): MoveParameters
     {

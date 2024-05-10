@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Business\Bot\BotFactory;
 use App\Business\Bot\Runner\BotConfiguration;
 use App\Business\Bot\Runner\BotRunner;
 use App\Business\Bot\Runner\BotRunnerResults;
@@ -13,7 +14,7 @@ class RunCodyfightBot extends Command
 
     protected $description = 'Runs Codyfight bot by name';
 
-    public function handle(BotRunner $runner): int
+    public function handle(BotFactory $botFactory, BotRunner $runner): int
     {
         $botName = $this->argument('botName');
         $codyfightConfig = config('codyfight');
@@ -34,7 +35,8 @@ class RunCodyfightBot extends Command
             ckey: $codyfightConfig['bot'][$botName]['ckey'],
             gameMode: (int) $codyfightConfig['bot'][$botName]['game_mode']
         );
-        $results = $runner->run($botConfiguration);
+        $bot = $botFactory->createBot($botConfiguration);
+        $results = $runner->run($bot);
         $this->handleBotResults($results);
 
         return static::SUCCESS;
