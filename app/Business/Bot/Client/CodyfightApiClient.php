@@ -2,6 +2,7 @@
 
 namespace App\Business\Bot\Client;
 
+use App\Business\Bot\Command\Move\MoveParameters;
 use App\Business\Bot\Runner\BotConfiguration;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -41,6 +42,36 @@ class CodyfightApiClient implements CodyfightClientInterface
             ]
         );
         $this->log('Game surrendered');
+
+        return $response->json();
+    }
+
+    public function move(MoveParameters $parameters): array
+    {
+        $this->log(sprintf('Starting move to [x: %s, y: %s]', $parameters->getX(), $parameters->getY()));
+        $response = Http::put(
+            'https://game.codyfight.com',
+            [
+                'ckey' => $this->configuration->getCkey(),
+                'x' => $parameters->getX(),
+                'y' => $parameters->getY(),
+            ]
+        );
+        $this->log('Move ended');
+
+        return $response->json();
+    }
+
+    public function checkGameState(): array
+    {
+        $this->log('Checking game state');
+        $response = Http::get(
+            'https://game.codyfight.com',
+            [
+                'ckey' => $this->configuration->getCkey(),
+            ]
+        );
+        $this->log('Game state updated');
 
         return $response->json();
     }
