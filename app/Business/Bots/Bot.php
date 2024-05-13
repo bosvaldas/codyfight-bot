@@ -8,6 +8,10 @@ use App\Business\Logger\BotLoggerInterface;
 
 abstract class Bot
 {
+    protected const STATUS_NOT_STARTED = 0;
+    protected const STATUS_IN_PROGRESS = 1;
+    protected const STATUS_ENDED = 2;
+
     protected ?array $game = null;
 
     public function __construct(
@@ -40,7 +44,7 @@ abstract class Bot
 
     protected function waitForGameToStart(): void
     {
-        while ($this->game['state']['status'] === 0) {
+        while ($this->game['state']['status'] === self::STATUS_NOT_STARTED) {
             $this->logger->info('Waiting for game to start');
 
             sleep(1);
@@ -51,7 +55,7 @@ abstract class Bot
 
     protected function playGame(): void
     {
-        while ($this->game['state']['status'] === 1) {
+        while ($this->game['state']['status'] === self::STATUS_IN_PROGRESS) {
             if ($this->game['players']['bearer']['is_player_turn']) {
                 $this->logger->info('Player turn');
                 $this->handleTurn();
@@ -64,7 +68,7 @@ abstract class Bot
 
     protected function endGame(): void
     {
-        if ($this->game['state']['status'] !== 2) {
+        if ($this->game['state']['status'] !== self::STATUS_ENDED) {
             return;
         }
 
