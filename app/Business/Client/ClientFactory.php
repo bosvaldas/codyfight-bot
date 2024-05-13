@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Business\Bot\Client;
+namespace App\Business\Client;
 
-use App\Business\Bot\Runner\BotConfiguration;
+use App\Business\Runner\BotConfiguration;
 
 class ClientFactory
 {

@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Business\Bot\Client;
+namespace App\Business\Client;
 
-use App\Business\Bot\Command\Move\MoveParameters;
-use App\Business\Bot\Runner\BotConfiguration;
+use App\Business\Command\Move\MoveParameters;
+use App\Business\Runner\BotConfiguration;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 

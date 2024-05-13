@@ -2,10 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\Business\Bot\BotFactory;
-use App\Business\Bot\Runner\BotConfiguration;
-use App\Business\Bot\Runner\BotRunner;
-use App\Business\Bot\Runner\BotRunnerResults;
+use App\Business\Runner\BotConfiguration;
+use App\Business\Runner\BotRunner;
 use Illuminate\Console\Command;
 
 class RunCodyfightBot extends Command
@@ -14,7 +12,7 @@ class RunCodyfightBot extends Command
 
     protected $description = 'Runs Codyfight bot by name';
 
-    public function handle(BotFactory $botFactory, BotRunner $runner): int
+    public function handle(BotRunner $runner): int
     {
         $botName = $this->argument('botName');
         $codyfightConfig = config('codyfight');
@@ -31,19 +29,22 @@ class RunCodyfightBot extends Command
             return static::FAILURE;
         }
 
-        $botConfiguration = new BotConfiguration(
-            ckey: $codyfightConfig['bot'][$botName]['ckey'],
-            gameMode: (int) $codyfightConfig['bot'][$botName]['game_mode']
-        );
-        $bot = $botFactory->createBot($botConfiguration);
-        $results = $runner->run($bot);
-        $this->handleBotResults($results);
+        $botConfiguration = $this->createConfiguration($botName, $codyfightConfig);
+
+        $runner->run($botConfiguration);
 
         return static::SUCCESS;
     }
 
-    private function handleBotResults(BotRunnerResults $results): void
+    public function createConfiguration(string $botName, array $codyfightConfig): BotConfiguration
     {
-        // print outcome
+        $rawBotConfiguration = $codyfightConfig['bot'][$botName];
+
+        return new BotConfiguration(
+            botName: $botName,
+            botFactoryClassName: $rawBotConfiguration['factory_class_name'],
+            ckey: $rawBotConfiguration['ckey'],
+            gameMode: (int)$rawBotConfiguration['game_mode']
+        );
     }
 }

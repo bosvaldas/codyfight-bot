@@ -1,10 +1,12 @@
 <?php
 
-namespace App\Business\Bot\Runner;
+namespace App\Business\Runner;
 
 readonly class BotConfiguration
 {
     public function __construct(
+        private string $botName,
+        private string $botFactoryClassName,
         private string $ckey,
         private int    $gameMode
     )
@@ -19,5 +21,15 @@ readonly class BotConfiguration
     public function getGameMode(): int
     {
         return $this->gameMode;
+    }
+
+    public function getBotName(): string
+    {
+        return $this->botName;
+    }
+
+    public function getBotFactoryName(): string
+    {
+        return $this->botFactoryClassName;
     }
 }

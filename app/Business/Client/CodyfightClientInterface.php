@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Business\Bot\Client;
+namespace App\Business\Client;
 
-use App\Business\Bot\Command\Move\MoveParameters;
+use App\Business\Command\Move\MoveParameters;
 
 interface CodyfightClientInterface
 {
