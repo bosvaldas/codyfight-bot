@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Business\Bot\Command\Move;
+namespace App\Business\Command\Move;
 
-class RandomMoveCommand implements MoveCommandInterface
+class RandomMove implements MoveCommandInterface
 {
-    public function get(array $gameState): MoveParameters
+    public function execute(array $gameState): MoveParameters
     {
         $move = $this->getRandomPossibleMove($gameState);
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Business\Bot\Command\Move;
+namespace App\Business\Command\Move;
 
 readonly class MoveParameters
 {

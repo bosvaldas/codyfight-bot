@@ -13,7 +13,8 @@ class FooBotFactory extends BotFactory
         return new FooBot(
             client: $this->createClient($configuration),
             logger: $this->createLogger($configuration),
-            commandMap: []
+            commandResolver: $this->createCommandResolver()
         );
     }
+
 }

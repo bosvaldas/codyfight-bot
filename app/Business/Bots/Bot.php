@@ -3,7 +3,7 @@
 namespace App\Business\Bots;
 
 use App\Business\Client\CodyfightClientInterface;
-use App\Business\Command\Move\MoveCommandInterface;
+use App\Business\Command\CommandResolver;
 use App\Business\Logger\BotLoggerInterface;
 
 abstract class Bot
@@ -13,7 +13,7 @@ abstract class Bot
     public function __construct(
         protected CodyfightClientInterface $client,
         protected BotLoggerInterface       $logger,
-        protected array                    $commandMap,
+        protected CommandResolver          $commandResolver,
     )
     {
     }
@@ -51,14 +51,15 @@ abstract class Bot
 
     protected function playGame(): void
     {
-        if ($this->game['state']['status'] !== 1) {
-            return;
+        while ($this->game['state']['status'] === 1) {
+            if ($this->game['players']['bearer']['is_player_turn']) {
+                $this->logger->info('Player turn');
+                $this->handleTurn();
+            } else {
+                $this->logger->info('Waiting for player turn');
+                $this->updateState();
+            }
         }
-
-        $this->logger->info('Play game');
-        sleep(3);
-        $this->logger->info('Surrendering');
-        $this->game = $this->client->surrender();
     }
 
     protected function endGame(): void
@@ -76,7 +77,7 @@ abstract class Bot
             default => 'draw',
         };
 
-        $this->logger->info('Game ' . $verdict);
+        $this->logger->info('Game ended. Verdict ' . $verdict);
 
         $this->resetGame();
     }
@@ -92,10 +93,13 @@ abstract class Bot
         $this->game = [];
     }
 
-    protected function move(MoveCommandInterface $command): array
+    protected function move(string $commandName): void
     {
+        $this->logger->info("Running move $commandName");
+
+        $command = $this->commandResolver->getMove($commandName);
         $moveParameters = $command->execute($this->game);
 
-        return $this->client->move($moveParameters);
+        $this->game = $this->client->move($moveParameters);
     }
 }
